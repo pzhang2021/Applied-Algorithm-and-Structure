@@ -1,0 +1,274 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Do not alter this block (unless you're familiar with LaTeX
+\documentclass{article}
+\usepackage[margin=1in]{geometry} 
+\usepackage{amsmath,amsthm,amssymb,amsfonts, fancyhdr, color, comment, graphicx, environ}
+\usepackage{xcolor}
+\usepackage{mdframed}
+\usepackage[shortlabels]{enumitem}
+\usepackage{indentfirst}
+\usepackage{hyperref}
+\usepackage{algorithm2e}
+\newtheorem{theorem}{Theorem}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=blue,
+}
+
+
+\pagestyle{fancy}
+
+
+\newenvironment{problem}[2][Problem]
+    { \begin{mdframed}[backgroundcolor=gray!20] \textbf{#1 #2} \\}
+    {  \end{mdframed}}
+
+% Define solution environment
+\newenvironment{solution}
+    {\textit{Solution:}}
+    {}
+
+\renewcommand{\qed}{\quad\qedsymbol}
+
+% prevent line break in inline mode
+\binoppenalty=\maxdimen
+\relpenalty=\maxdimen
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%Fill in the appropriate information below
+\lhead{Pengju Zhang}
+\rhead{CSC-421} 
+\chead{\textbf{Assignment 2}}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+
+%problem 1
+\begin{problem}{1}
+\textbf{[15 pts]}
+Solve the following recurrence relations. You do not need to give a $\Theta()$ bound for $(a)$ and $(b)$; it suffices to give the $O()$ bound that results from applying the Master theorem. You may assume that $T(n) = O(1)$ for $n = O(1)$.
+	\begin{enumerate}
+		\item $T(n) = 2T(n/3) + 1$
+		\item $T(n) = 7T(n/7) + n$
+		\item $T(n) = T(n - 1) + 2$
+	\end{enumerate}
+\end{problem}
+\begin{solution}
+	\begin{theorem}[The mater theorem]
+		Let $a\geq 1$, $b > 1$, $f(n) = O(n^d)$ where $d\geq 0$, and $c = log_{b}a$
+		\begin{equation} 
+ 			T(n) = 
+			\begin{cases}
+ 				O(1)  & \text{if $n = O(1)$} \\
+ 				aT(n/b) + f(n) & \text{otherwise}
+			\end{cases}
+		\end{equation}
+		\begin{enumerate}[leftmargin=*]
+		\item $c < d$: $T(n) = O(f(n)) = O(n^d)$
+		\item $c > d$: $T(n) = O(n^c)$
+		\item $c = d$: $T(n) = O(n^c lg n)$
+		\end{enumerate}
+	\end{theorem}
+	\begin{enumerate}
+		\item 
+		Applying the Master Theorem with $a = 2$, $b = 3$, $c = log_{3}2 \approx 1.584962501$ and $d = 0$. We get $c > d$, therefore $T(n) = O(n^c) = O(n^{log_{3}2})$
+		\item
+		Applying the Master Theorem with $a = 7$, $b = 7$, $c = log_{7}7 = 1$ and $d = 1$. We get $c = d$, therefore $T(n) = O(n^c lg n) = O(nlgn)$.
+		\item
+		We can not apply the Master Theorem on this part because $b\leq 1$, hence we use Iteration/Recursion-Tree method instead.
+		\newline
+		According to the starting point
+		\begin{equation}
+			T(n) = T(n - 1) + 2
+		\end{equation}
+		we derive
+		\begin{equation}
+			T(n - 1) = T(n - 2) + 2
+		\end{equation}
+		We substitute $T(n - 1)$ in equation (2) with $T(n - 2) + 2$ to get
+		\begin{equation}
+			T(n) = (T(n - 2) + 2) + 2 = T(n - 2) + 4
+		\end{equation}
+		Suppose we iterate this process with $k$ times, we will get
+		\begin{equation}
+			T(n) = T(n - k) + 2k
+		\end{equation}
+		Lastly we stop iterating when $k$ equal to the problem size at the base case, so that $n = k$ and $T(k) = T(0) + 2k = 1 + 2k = O(2k)\approx O(n)$.
+		
+	\end{enumerate}
+\end{solution}
+
+%problem 2
+\newpage
+\begin{problem}{2}
+\textbf{[15 pts]} 
+Give a recursive version of the algorithm Insertion-Sort based on the following paradigm: to sort $A[1..n]$, we first sort $A[1..n - 1]$ recursively and then insert $A[n]$ in its appropriate position. Write a pseudocode for the recursive version of Insertion-Sort and analyze its running time by giving a recurrence relation for the running time and then solving it.
+\end{problem}
+\begin{solution}
+	\begin{algorithm}
+		\SetKwProg{Def}{def}{:}{}
+		\Def{insertionSort(A[1..n], n)}{
+			\If{n $\leq$ 1} {return;}
+			insertionSort(A[1..n], n - 1)\\
+			lastInteger $\gets A[n - 1]$\\
+			i $\gets n - 2$\\
+			\While{$i \geq 0$ and $A[i] > lastInteger$} {
+				A[i + 1] = A[i];\\
+				i $\gets$ i - 1;
+			}
+			A[i + 1] $\gets$ lastInteger
+			}
+	\end{algorithm}
+	\newline
+	There are two steps in this recursive sorting algorithm:
+	\begin{enumerate}
+		\item Sort the sub-array $A[1..n - 1]$.
+		\item Insert $A[n]$ into the sorted sub-array from step 1 in proper position.
+	\end{enumerate}
+	For $n = 1$, step 1 doesn’t take any time as the sub-array is an empty array and step 2 takes constant time, i.e. the algorithm runs in $\Theta(1)$ time.\\
+	For $n > 1$, step 1 again calls for the recursion for $n - 1$ and step 2 runs in $\Theta(n)$ time.\\
+	Thus, we can write the recurrence as:
+	\begin{equation} 
+ 		T(n) = 
+		\begin{cases}
+ 			O(1)  & \text{if $n = 1)$} \\
+			T(n - 1) + n & \text{if $n > 1$}
+		\end{cases}
+	\end{equation}
+	So for any general $n > 1$,
+	\begin{equation}
+		\begin{aligned}
+			T(n) & = T(n - 1) + n\\
+				& = (T(n - 2) + (n - 1)) + n\\
+				& = T(1) + (n + (n - 1) + (n - 2) + (n - 3) + ... + (n - n))\\
+				& = 1	+ \sum_{k = 0}^{n} k\\
+				& = 1 + \frac{n(n - 1)}{2}\\
+				& = O(n^2)
+	  	\end{aligned}
+	\end{equation}
+\end{solution}
+
+%problem 3
+\newpage
+\begin{problem}{3}
+\textbf{[15 pts]}
+Let $A$ be an array of $n$ numbers. Use the algorithm Select(A, k) for finding the $k$-th smallest element of any array A of numbers to modify Quick Sort so that it runs in $O(nlgn)$ time in the worst case. Write a pseudocode for the modified Quick Sort, and analyze its running time by describing its recurrence relation and solving it. You can use the algorithm/subroutine Select() as a black box in the modified Quick Sort.
+\end{problem}
+\begin{solution}
+	\begin{algorithm}
+		\SetKwProg{Def}{def}{:}{}
+		\Def{QuickSort(A[1..n], low, high)}{
+			\If{low $<$ high} {
+				location $\gets$ Partition(A[1..n], low, high)\\
+				QuickSort(A[1..n], low, location)\\
+				QuickSort(A[1..n], location, high) 
+			}
+		}	
+	\end{algorithm}
+	\begin{algorithm}
+		\SetKwProg{Def}{def}{:}{}
+		\Def{Partition(A[1..n], low, high)}{
+			pivot = Select[A[low, high], (high - low)/2]\\
+			leftwall = low
+			\For{$i = low + 1$ to high} {
+				\If{A[i] $<$ pivot}{
+					swap(A[i], A)\\
+					leftwall $\gets$ leftwall + 1
+				}
+				swap(pivot, A[leftwall])
+			}
+			return leftwall
+		}	
+	\end{algorithm}
+	\newline
+	There are two steps in this recursive sorting algorithm:
+	\begin{enumerate}
+		\item Sort the sub-array base on the pivot location (on both left and right side)
+		\item Finding the location of pivot through partition function
+	\end{enumerate}
+	For $n = 1$, step 1 doesn’t take any time as the sub-array is an empty array and step 2 takes constant time, i.e. the algorithm runs in $\Theta(1)$ time.\\
+	For $n > 1$, step 1 again calls for the recursion for $n/2$ two times and step 2 takes $\theta(n)$ time to compare the whole array.\\
+	Thus, we can write the recurrence as:
+	\begin{equation} 
+ 		T(n) = 
+		\begin{cases}
+ 			O(1)  & \text{if $n = 1)$} \\
+			2T(n/2) + O(n) & \text{if $n > 1$}
+		\end{cases}
+	\end{equation}
+	By using Select() method, we are guaranteed to have median number of array for efficient sorting, then by applying the Master Theorem with $a = 2$, $b = 2$, $c = log_{2}2= 1$ and $d = 1$. We get $c = d$, therefore $T(n) = O(n^c lg n) = O(nlgn)$. 	
+\end{solution}
+
+%problem 4
+\newpage
+\begin{problem}{4}
+\textbf{[15 pts]} 
+Give an algorithm that takes as input a positive integer $n$ and a number $x$, and computes $x^n$ (i.e., $x$ raised to the power $n$) by performing $O(lgn)$ multiplications. Your algorithm CANNOT use the exponentiation operation, and may use only the basic arithmetic operations (addition, subtraction, multiplication, division, modulo). Moreover, the total number of basic arithmetic operations used should be $O(lg n)$.
+\end{problem}
+\begin{solution}
+In order to get $O(logn)$ time, we have to to divided the whole into sub-problems. Solving $x^n$ is equivalent to solve $x^{n/2}\cdot x^{n/2}$ and $x^{n/4}\cdot x^{n/4}\cdot x^{n/4}\cdot x^{n/4}$ and so on until $n = 0$.
+	\begin{algorithm}
+		\SetKwProg{Def}{def}{:}{}
+		\Def{Power(x, n)}{
+			\If{n == 0} {
+				return 1
+			}
+			temp $\gets$ Power(x, n/2)\\
+			\If{n is odd} {
+				return $x$ * temp * temp
+			}
+			\If{n is even} {
+				return temp * temp
+			}
+		}	
+	\end{algorithm}
+\end{solution}
+
+%problem 5
+\newpage
+\begin{problem}{5}
+\textbf{[20 pts]}
+Although merge sort runs in $\Theta(n lg n)$ worst-case time and insertion sort runs in $\Theta(n^2)$ worst-case time, the constant factors in insertion sort can make it faster in practice for small problem sizes on many machines. Thus, it makes sense to coarsen the leaves of the recursion by using insertion sort within merge sort when subproblems become sufficiently small. Consider a modification to merge sort in which $n/k$ sublists of length k are sorted using insertion sort and then merged using the standard merging mechanism, where $k$ is a value to be determined.
+\begin{enumerate}
+	\item\textbf{[5 pts]} Show that insertion sort can sort the n/k sublists, each of length $k$, in $\Theta(nk)$ worst-case time.
+	\item\textbf{[10 pts]} Show how to merge the sublistsin $\Theta(nlg(n/k))$ worst-case time.
+	\item\textbf{[5 pts]}  Given that the modified algorithm runs in $\Theta(nk + nlg(n/k))$ worst-case time, what is the largest value of $k$ as a function of n for which the modified algorithm has the same running time as standard merge sort, in terms of $\Theta$-notation?
+\end{enumerate}
+\end{problem}
+\begin{solution}	
+	\begin{enumerate}
+		\item For input of size $k$, insertion sort runs on $\Theta(k^2)$ worst-case time. So, worst-case time to sort $n/k$ sublists, each of length $k$, will be $n/k \cdot \Theta(k^2)$ = $\Theta(nk)$.
+		\item We have $n$ elements divided into $n/k$ sorted sublists each of length $k$. To merge these $n/k$ sorted sublists to get a single sorted list of length $n$, we have to take 2 sublists at a time and continue to merge them. This will result in $\lg (n/k)$ steps and in every step, we are essentially going to compare $n$ elements. So the whole process will run at $\Theta(n \lg (n/k))$.
+		\item For the modified algorithm to have the same asymptotic running time as standard merge sort. To satisfy this condition, $k$ cannot grow faster than $\lg nlgn$ asymptotically, if it does then because of the $nk$ term, the algorithm will run at worse asymptotic time than $\Theta(n \lg n)$.\\
+		Let’s assume, $k = \Theta(\lg n)$,
+	\begin{equation}
+		\begin{aligned}
+			\Theta(nk + n\lg(n/k) & = \Theta(nk + n\lg(n) - n\lg(k))\\
+				& = \Theta(n\lg(n) + n\lg(n) - n\lg(\lg(n)))\\
+				& = \Theta(2n\lg(n) + n\lg(\lg(n))\\
+				& = \Theta(n\lg(n))
+	  	\end{aligned}
+	\end{equation}
+	$\lg(\lg(n))$ is very small compared to $\lg(n)$ for sufficiently larger values of $n$.
+	\end{enumerate}
+\end{solution}
+
+% problem 6
+\newpage
+\begin{problem}{6}
+\textbf{[20 pts]}
+A group of n Ghostbusters is battling $n$ ghosts. Each Ghostbuster carries a proton pack, which shoots a stream at a ghost, eradicating it. A stream goes in a straight line and terminates when it hits the ghost. The Ghostbusters decide upon the following strategy. They will pair off with the ghosts, forming $n$ Ghostbuster-ghost pairs, and then simultaneously each Ghostbuster will shoot a stream at his chosen ghost. As we all know, it is very dangerous to let streams cross, and so the Ghostbusters must choose pairings for which no streams will cross. Assume that the position of each Ghostbuster and each ghost is a fixed point in the plane and that no three positions are collinear.
+\begin{enumerate}
+	\item\textbf{[10 pts]} Argue that there exists a line passing through one Ghostbuster and one ghost such that the number of Ghostbusters on one side of the line equals the number of ghosts on the same side. Describe how to find such a line in $O(n \lg (n))$ time.
+	\item\textbf{[10 pts]} Give an $O(n^2 \lg (n))$-time algorithm to pair Ghost- busters with ghosts in such a way that no streams cross.
+\end{enumerate}
+\end{problem}
+\begin{solution}	
+	\begin{enumerate}
+		\item Find the bottom, left-most point as in Graham scan. Sort the remaining points (by angle) from that point. Assume that the bottom, left most point is a Ghostbuster. Visit the sorted points by increasing angle, keeping track of the difference between number of visited Ghostbusters and Ghosts. Stop when the difference is -1, and connect the point to the bottom, left-most point. Run time is dominated by the sort, which takes $O(n \lg n)$-time.
+		\item Using the above algorithm matches one pair of Ghostbuster and Ghost. On each side of the line formed by the pairing, the number of Ghostbusters and Ghosts are the same, so use the algorithm recursively on each side of the line to find pairings. The worst case is when, after each iteration, one side of the line contains no Ghostbusters or Ghosts. Then, we need $n/2$ total iterations to find pairings, giving us an $P(n^2 \lg n)$-time algorithm.
+	\end{enumerate}
+\end{solution}
+\end{document}

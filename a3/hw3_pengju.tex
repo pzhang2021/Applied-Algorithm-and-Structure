@@ -1,0 +1,227 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Do not alter this block (unless you're familiar with LaTeX
+\documentclass{article}
+\usepackage[margin=1in]{geometry} 
+\usepackage{amsmath,amsthm,amssymb,amsfonts, fancyhdr, color, comment, graphicx, environ}
+\usepackage{xcolor}
+\usepackage{mdframed}
+\usepackage[shortlabels]{enumitem}
+\usepackage{indentfirst}
+\usepackage{hyperref}
+\usepackage{algorithm2e}
+\newtheorem{theorem}{Theorem}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=blue,
+}
+
+
+\pagestyle{fancy}
+
+
+\newenvironment{problem}[2][Problem]
+    { \begin{mdframed}[backgroundcolor=gray!20] \textbf{#1 #2} \\}
+    {  \end{mdframed}}
+
+% Define solution environment
+\newenvironment{solution}
+    {\textit{Solution:}}
+    {}
+
+\renewcommand{\qed}{\quad\qedsymbol}
+
+% prevent line break in inline mode
+\binoppenalty=\maxdimen
+\relpenalty=\maxdimen
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%Fill in the appropriate information below
+\lhead{Pengju Zhang}
+\rhead{CSC-421} 
+\chead{\textbf{Assignment 3}}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+
+%problem 1
+\begin{problem}{1}
+\textbf{[25 pts]}
+Pascal’s triangle:
+\newline
+The first entry in a row is 1 and the last entry is 1 (except for the first row which contains only 1), and every other entry in Pascal’s triangle is equal to the sum of the following two entries: the entry that is in the previous row and the same column, and the entry that is in the previous row and previous column.
+\begin{enumerate}
+	\item\textbf{[10 pts]} Give a recursive definition (relation) for the entry $C[i, j]$ at row $i$ and column $j$ of Pascal’s triangle. Make sure that you distinguish the base case(s).
+	\item\textbf{[5 pts]} Give a recursive algorithm to compute $C[i, j]$, $i\geq j \geq 1$. Illustrate by drawing a diagram (tree) the steps that your algorithm performs to compute $C[6, 4]$. Does your algorithm perform overlapping computations?
+	\item\textbf{[10 pts]}  Use dynamic programming to design an $O(n^2)$ time algorithm that computes the first $n$ rows in Pascal’s triangle.
+\end{enumerate}
+\end{problem}
+\begin{solution}
+\begin{enumerate}
+	\item
+	Recursive definition: $C(i, j) = C(i-1, j-1) + C(i-1, j)$ where $i > j > 0$ ; (base case) 1 if $j = 0$ or $j = i$.
+	\item \mbox{}
+	\begin{algorithm}
+		\SetKwProg{Def}{def}{:}{}
+		\Def{pascalNumber(int i, int j)}{
+			\If{i = 0 or j = i} {return 1;}
+			return pascalNumber(n - 1, k - 1) + pascalNumber(n - 1, k);
+			}
+	\end{algorithm}
+	\newline
+	This is same approach as Fibonacci Sequence F(n) = F(n - 1) + F(n - 2) and therefore there are many overlapping subproblems.
+	\item \mbox{}
+	\begin{algorithm}
+		\SetKwProg{Def}{def}{:}{}
+		\Def{pascalNumber(int k, int m)}{
+			A $\gets$ new 2 dimension Array;\\
+			\For{$i = 0;\ i < k + 1;\ i++$} {
+				\For{$j = 0;\ j < i;\ j++$} {
+					\If{j == i or j == 0} {
+						A[i][j] == 1;
+					}
+					\Else {
+						A[i][j] = A[i - 1][j - 1] + A[i - 1][j];
+					}
+				}
+			}
+			return A[k][m];
+		}
+	\end{algorithm}
+	\newline
+	Nested loop has been applied in this algorithm, the totally time complexity is $O(n^2)$.	
+\end{enumerate}
+\end{solution}
+
+%problem 2
+\newpage
+\begin{problem}{2}
+\textbf{[25 pts]} 
+In a previous life, you worked as a cashier in the lost Antarctican colony, spending the better part of your day giving change to your customers. Because paper is a very rare and valuable resource in Antarctica, cashiers were required by law to use the fewest bills possible whenever they gave change.
+\begin{enumerate}
+	\item\textbf{[5 pts]} Suppose that the currency of the colony was available in the following denominations: 1, 4, and 6. Consider an algorithm that repeatedly takes the largest bill that does not exceed the target amount. For example, to make 11 using this algorithm, we first take a 6 bill, then a 4 bill, and finally a 1 bill. Give an example where this greedy algorithm uses more bills than the minimum possible.
+	\item\textbf{[10 pts]} Describe and analyze a recursive algorithm that computes, given an integer $n$ and an arbitrary system of k denominations $<d_1 = 1, . . . , d_k>$, the minimum number of bills needed to make the amount $n$.
+	\item\textbf{[10 pts]}  Describe a dynamic programming algorithm that computes, given an integer $n$ and an arbitrary system of k denominations $<d_1 = 1, . . . , d_k>$, the minimum number of bills needed to make amount $n$.
+\end{enumerate}
+\end{problem}
+\begin{solution}
+\begin{enumerate}
+	\item
+	Example: 8, greedy algorithm will take a 6 bill then a 1 bill, and finally a 1 bill again, a total of 3 bills. As we all know the best solution is two of 4 bill. 
+	\item \mbox{}
+	\begin{algorithm}
+		result $\gets$ MAXIMUM;
+		\SetKwProg{Def}{def}{:}{}
+		\Def{findMinBill(List$<$Integer$>$ bills, int value)}{
+			\If{value == 0} {return 0;}
+			\For{i = 0 to length of bills} {
+				\If{bills[i] $\leq$ value} {
+					currrentRes = findMinBill(bills, value - bills[i]);\\
+					\If{currentRes + 1 < result} {
+					result = currentRes + 1;
+					}
+				}
+			}
+			}
+	\end{algorithm}
+	\item \mbox{}
+	\begin{algorithm}
+		\SetKwProg{Def}{def}{:}{}
+		\Def{findMinBill(List$<$Integer$>$ bills, int value)}{
+			A $\gets$ new 2 dimension Array;\\
+			A[0] $\gets$ 0;
+			\For{i = 1 to value} {
+				\For{j = 0 to length of bills} {
+					\If{(bills[j] < i) and (A[i - bills[j]] + 1 < A[i])} {
+						A[i] = A[i - bills[j]] + 1;
+					}
+				}
+			}
+			return A[value];
+			}
+	\end{algorithm}	
+\end{enumerate}
+\end{solution}
+
+%problem 3
+\newpage
+\begin{problem}{3}
+\textbf{[25 pts]}
+Suppose that you are given an array $A[1..n]$ of numbers, which may be positive, negative, or zero, and which are not necessarily integers. Give an O(n)-time algorithm that finds the largest sum of elements in a contiguous subarray $A[i..j]$ of A. For example, given the array [-6, 12, -7, 0, 14, -7, 5] as input, your algorithm should return 19, which is the content of $A[2..5]$.
+\end{problem}
+\begin{solution}
+\newline
+Approach steps:
+\begin{enumerate}
+	\item 
+	Initialize 2 integer variables. Set both of them equal to the first value in the array.\\
+	$currentSubarray$ will keep the running count of the current subarray we are focusing on.\\
+	$maxSubarray$ will be our final return value. Continuously update it whenever we find a bigger subarray.
+	\item
+	Iterate through the array, starting with the 2nd element (as we used the first element to initialize our variables). For each number, add it to the currentSubarray we are building. If currentSubarray becomes negative, we know it isn't worth keeping, so throw it away. Remember to update maxSubarray every time we find a new maximum.
+	\begin{algorithm}
+		\SetKwProg{Def}{def}{:}{}
+		\Def{maxSubArray(List$<$Integer$>$ nums)}{
+			currentSubarray $\gets$ nums[0];\\
+			maxSubarray $\gets$ nums[0];\\
+			\For {i = 0 to length of nums} {
+				num $\gets$ nums[i];\\
+				currentSubarray $\gets$ max(num, currentSubarray + num);\\
+				maxSubarray $\gets$ max(maxSubarray, currentSubarray);
+			}
+			return maxSubarray;
+		}
+	\end{algorithm}
+\end{enumerate}
+\end{solution}
+
+%problem 4
+\newpage
+\begin{problem}{4}
+\textbf{[15 pts]} 
+A subsequence of a sequence is anything obtained from a sequence by extracting a subset of elements, but keeping them in the same order; the elements of the subsequence need not be contiguous in the original sequence. For example, the strings C, DAMN, YAIOAI, and DYNAMICPROGRAMMING are all subsequences of the string DYNAMICPROGRAMMING.
+\begin{enumerate}
+	\item\textbf{[15 pts]}  Let A[1..m] and B[1..n] be two arbitrary arrays. A common subsequence of A and B is another sequence that is a subsequence of both A and B. A longest common subsequence of A and B is a subsequence of A and B of maximum length. For example, if A = $<CTGCGTGTC>$ and B = $<GTCGTGGC>$, then the length of the longest common subsequence of A and B is 6, and the sequence ⟨TCGTGC⟩ is such a longest common subsequence of A and B. Describe an O(nm)-time algorithm to compute the length of the longest common subsequence of two given sequences A and B. (Hint. You may modify the Edit Distance algorithm so that you consider only the two operations: Insert and Delete. What is the connection between this variant of Edit Distance and the problem of computing a longest common subsequence?)
+	\item\textbf{[10 pts]} A palindrome is any sequence that is exactly the same as its reversal, like I, or DEED, or RACECAR, or AMANAPLANACATACANALPANAMA. Use part (a) above to give an $O(n^2)$-time algorithm to find the length of the longest subsequence of a given sequence of length n that is also a palindrome.
+\end{enumerate}
+\end{problem}
+\begin{solution}
+\begin{enumerate}
+	\item \mbox{}
+	\begin{algorithm}
+		\SetKwProg{Def}{def}{:}{}
+		\Def{longestCommonSubsequence(String a, String b)}{
+			A $\gets$ new 2 dimension Array;\\
+			\For{i = length of b; i $\geq$ 0; i $\gets$ i - 1} {
+				\For{j = length of a; j $\geq$ 0; j $\gets$ j - 1} {
+					\If{a[j] == b[i]} {
+						A[j][i] = 1 + A[j + 1][i + 1];
+					}
+					\Else {
+						A[j][i] = max(A[j + 1][i], A[j][i + 1]);
+					}
+				}
+			}
+			return A[0][0];
+			}
+	\end{algorithm}
+	\newline
+	Let $M$ be the length of the string a, and $N$ be the length of the string b. Total time complexity will be $O(M\cdot N)$.
+	\item
+	Part (a) is to find the longest common subsequence between string A and string B, to determine whether a string C is palindrome, we can compare the longest common subsequence between string C and reverse of C, if the result is equivalent to the length of C, which means this is palindrome.
+	\begin{algorithm}
+		\SetKwProg{Def}{def}{:}{}
+		\Def{palindrome(String c, String revserseC)}{
+			res = longestCommonSubsequence(c, revserseC);\\
+			\If{res = length of c} {
+			return true;
+			}
+			return false;
+		}
+	\end{algorithm}
+	\newline
+	Let $N$ be the length of the string c, thus reverseC has same length. Total time complexity will be $O(N^2)$.
+\end{enumerate}
+\end{solution}
+\end{document}

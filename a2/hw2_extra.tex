@@ -1,0 +1,269 @@
+\documentclass[11pt]{article}
+
+\renewcommand{\today}{February 13, 2001}
+
+\usepackage{fullpage}
+\usepackage{fancyhdr}
+
+\lhead{Algorithms}
+\chead{}
+\rhead{\today}
+\lfoot{}
+\cfoot{\thepage}
+\rfoot{}
+
+\pagestyle{fancy}
+
+\newcommand{\op}[1]{{\sf #1}}
+
+\begin{document}
+
+\begin{center}
+  \bf {\large Homework 3}
+\end{center}
+
+\begin{itemize}
+
+\item[\bf 1:] {\bf Minimum Spanning Trees}
+  
+  The following algorithm can be shown to compute a minimum spanning
+  tree (MST) of a connected undirected graph $G=(V,E)$, where each
+  edge has a real valued weight.  Initially let each node of $V$ be a
+  tree of size one.  Let the set of trees be denoted $\cal{T}$.
+  Repeatedly pick an arbitrary tree $t\in \cal{T}$ and grow $t$ by
+  joining $t$ with a tree $t'\in \cal{T}$ that is connected to $t$ by
+  an edge $e$ of minimum weight. The edge $e$ will be part of the
+  computed MST. This generic algorithm forms the basis for several
+  efficient algorithms for computing a MST.
+
+  \begin{itemize} 
+  \item[a)] Adapt the algorithm such that it for a planar graph $G=(V,E)$ finds a
+    MST in time~$O(|V|)$. The algorithm should proceed in $O(\log
+    |V|)$ phases.  After each phase the algorithm should contract each
+    subtree to a single node and remove multiple edges and self loops.
+  \end{itemize}
+  
+  Let $G=(V,E)$ be a connected undirected graph, with $n=|V|$ and
+  $m=|E|$, where each edge has  a real valued weight. In the
+  following we consider a variant of the generic algorithm that works
+  in a sequence of phases. In each phase small subtrees of a MST are
+  identified. After a phase the subtrees found in the phase are
+  contracted to single nodes.  For each phase we have two parameters $s_i$
+  and $k_i$, for $i\geq 0$. The number of trees at the start of
+  phase $i$ is denoted~$s_i$, where $s_0=n$. The parameter
+  $k_i=2^{2m/s_i}$ is denoted the heap limit of phase~$i$.
+  
+  In phase $i$, initially all nodes are subtrees of size one and are
+  unmarked. An unmarked subtree~$t$ is grown until one of the
+  following three conditions is true, in which case $t$ is marked.
+  \begin{itemize}
+  \item $t$ is adjacent to $>k_i$ nodes outside $t$.
+  \item $t$ has been joined with a marked tree, or
+  \item $t$ is not adjacent to another tree,
+  \end{itemize}
+  A phase ends when all nodes have been marked.
+
+  \begin{itemize}
+  \item[b)] Show how each phase of the algorithm can be implemented to
+    take time $O(s_i\log k_i+m)$ using Fibonacci heaps.
+  \item[c)] Show that the number of trees after a phase is at most
+    $2{m_i}/{k_i}$, and that the heap limit $k_{i+1}\geq 2^{k_i}$.
+  \item[d)] Argue that there is at most $O(\log^* n)$ iterations, and
+    that the running time of the algorithm becomes $O(m\log^* n)$,
+    where $\log^* n=\min \{ i \mid \log^{(i)} n\leq 1 \}$, $\log^{(1)}=\log n$ 
+    and $\log^{(i+1)} n=\log\log^{(i)} n$, for $i>1$.
+  \end{itemize}
+
+\item[\bf 2:] {\bf Augmenting Paths of Maximum Bottleneck Capacity}
+  
+  Show how to calculate in time $O(|E|+|V|\log|V|)$ an augmenting path of maximum
+  bottleneck capacity in a graph $G=(V,E)$ with capacity $c$.
+  
+\item[\bf 3:] {\bf Ghostbusters}
+
+  A group of $n$ Ghostbusters is battling $n$ ghosts. Each
+  Ghostbuster is armed with a proton pack, which shoots a stream at a
+  ghost, eradicating it. A stream goes in a straight line and
+  terminates when it hits the ghost. The Ghostbusters decide upon the
+  following strategy. They will pair off with the ghosts, forming $n$
+  Ghostbuster-ghost pairs, and then simultaneously each Ghostbuster
+  will shoot a stream at his or her chosen ghost. As we all know, it
+  is \emph{very} dangerous to let streams cross, and so the
+  Ghostbusters must choose pairings for which no streams will cross.
+  
+  Assume that the position of each Ghostbuster and each ghost is a
+  fixed point in the plane and that no three positions are on the same
+  line.
+  \begin{itemize}
+  \item[a)] Argue that there exists a line passing through one
+    Ghostbuster and one ghost such the number of Ghostbusters on one
+    side of the line equals the number of ghosts on the same side.
+    Describe how to find such a line in $O(n\log n)$ time.
+  \item[b)] Give an $O(n^2\log n)$ time algorithm to pair Ghostbusters
+    with ghosts in such a way that no streams cross.
+  \end{itemize}
+
+
+\item[\bf 4:] {\bf Self Adjusting Trees $^*$}
+  
+  In this exercise we consider search trees that do not maintain any
+  explicit balance information. Each node is represented by a record
+  consisting of three fields: an element from some totally ordered
+  universe, a pointer to the left child, and a pointer to the right
+  child (non existing children are represented by \textsf{nil}). The
+  elements are maintained in inorder. The crucial operation on a tree
+  is the following operation:
+
+  \begin{itemize}
+  \item \textsf{splay}$(i,T)$ reorganize $T$ such that the node
+    containing element $i$ becomes the root. If $i\not\in T$ then
+    either $\max\{k\in T|k<i\}$ or $\min\{k\in T|k>i\}$ becomes the
+    root.
+  \end{itemize}
+  
+  Using the \textsf{splay} operation we can now implement the
+  following three operations:
+
+  \begin{itemize}
+  \item \textsf{Member}$(i,T)$ determines if $i\in T$ by performing
+    \textsf{splay}$(i,T)$ and returning true if and only if the new
+    root of $T$ contains $i$.
+  \item \textsf{Insert}$(i,T)$ inserts element $i$ in $T$ as follows.
+    First perform \textsf{splay}$(i,T)$. Assume the new root $v$
+    contains $\max\{k\in T|k<i\}$ (the case $\min\{k\in T|k>i\}$ is
+    handled symmetrically). Create a new root with element $i$, left
+    child $v$, and right child being the right child of $v$. The right
+    child of $v$ becomes \textsf{nil} and the left child of $v$
+    remains unchanged.
+  \item \textsf{Delete}$(i,T)$ deletes $i\in T$ as follows. First
+    perform \textsf{splay}$(i,T)$ such that the root contains~$i$. Let
+    $T_L$ and $T_R$ be respectively the subtree rooted at the left child and
+    the right child of the root.  Remove the root and let $T=T_L$. Perform
+    \textsf{splay}$(i,T)$, i.e.\ the right child of the root of $T$ is
+    \textsf{nil}, and make $T_R$ the right child of the root of $T$.
+  \end{itemize}
+  
+  The \textsf{splay} operation is implemented by first performing an
+  ordinary search in $T$ for $i$. The node found is then moved to the
+  root by performing a sequence of rotations:
+
+  \begin{center}
+    \unitlength0.4pt
+    \begin{picture}(600,185)(0,35)
+      \newcommand{\TREE}[2]{
+        \put(#1){
+          \put(0,0){\line(-1,-2){35}}
+          \put(0,0){\line(1,-2){35}}
+          \put(-35,-70){\line(1,0){70}}
+          \put(0,-55){\makebox[0mm][c]{#2}}
+          }}
+      \newcommand{\NODE}[1]{\put(#1){\circle*{10}}}
+
+      \put(-20,0){
+        \TREE{50,100}{$A$}
+        \TREE{160,100}{$B$}
+        \TREE{215,155}{$C$}
+        \NODE{105,155} \put(95,155){\makebox[0mm][r]{$x$}}
+        \put(105,155){\line(-1,-1){55}}
+        \put(105,155){\line( 1,-1){55}}
+        \NODE{160,210} \put(150,210){\makebox[0mm][r]{$y$}}
+        \put(160,210){\line(-1,-1){55}}
+        \put(160,210){\line( 1,-1){55}}
+        }
+
+      \put(300,125){\makebox[0mm][c]{\textsf{rotate}$(x)$}}
+      \put(250,110){\vector(1,0){100}}
+      \put(350,100){\vector(-1,0){100}}
+      \put(300,75){\makebox[0mm][c]{\textsf{rotate}$(y)$}}
+
+      \put(300,0){
+        \TREE{105,155}{$A$}
+        \TREE{160,100}{$B$}
+        \TREE{270,100}{$C$}
+        \NODE{215,155} \put(225,155){\makebox[0mm][l]{$y$}}
+        \put(215,155){\line(-1,-1){55}}
+        \put(215,155){\line( 1,-1){55}}
+        \NODE{160,210} \put(170,210){\makebox[0mm][l]{$x$}}
+        \put(160,210){\line(-1,-1){55}}
+        \put(160,210){\line( 1,-1){55}}
+      }
+    \end{picture}
+  \end{center}
+  
+  More specifically, let $x$ be the node found. The node $x$ is move to the root by
+  iterating the following steps:
+
+  \begin{itemize}
+  \item[(\textit{i})] If $x$ has a parent but no grandparent, apply
+    \textsf{rotate}$(x)$.
+  \item[(\textit{ii})] If $x$ has a parent $y$ and a grandparent, and
+    both $x$ and $y$ are left children (or both right children), then apply
+    \textsf{rotate}$(y)$ followed by \textsf{rotate}$(x)$.
+  \item[(\textit{iii})] If $x$ has a parent $y$ and a grandparent, and
+    $x$ is a left child and $y$ a right child (or $x$ right child and
+    $y$ a left child), then apply \textsf{rotate}$(x)$ followed by
+    \textsf{rotate}$(x)$.
+  \end{itemize}
+  
+  The example below illustrates the effect of applying
+  \textsf{splay}$(1,T)$ to the tree to the left.
+
+  \begin{center}
+    \small
+    \unitlength1.3pt
+    \begin{picture}(200,75)(-10,0)
+      \newcommand{\TREE}[2]{
+        \put(#1){
+          \put(0,0){\line(-1,-2){35}}
+          \put(0,0){\line(1,-2){35}}
+          \put(-35,-70){\line(1,0){70}}
+          \put(0,-55){\makebox[0mm][c]{#2}}
+          }}
+      \newcommand{\NODE}[1]{\put(#1){\circle*{3}}}
+
+      \NODE{ 0, 0} \put(-10,0){1} \put( 0, 0){\line(1,1){10}}
+      \NODE{10,10} \put( 0,10){2} \put(10,10){\line(1,1){10}}
+      \NODE{20,20} \put(10,20){3} \put(20,20){\line(1,1){10}}
+      \NODE{30,30} \put(20,30){4} \put(30,30){\line(1,1){10}}
+      \NODE{40,40} \put(30,40){5} \put(40,40){\line(1,1){10}}
+      \NODE{50,50} \put(40,50){6} \put(50,50){\line(1,1){10}}
+      \NODE{60,60} \put(50,60){7} \put(60,60){\line(1,1){10}}
+      \NODE{70,70} \put(60,70){8}
+
+      \put(95,45){\makebox[0mm][c]{\normalsize\textsf{splay}$(1,T)$}}
+      \put(75,40){\vector(1,0){40}}
+
+      \put(100,0){
+        \NODE{40,20} \put(45,20){3} \put(40,20){\line(-1,1){10}}
+        \NODE{30,30} \put(20,30){2} \put(30,30){\line(1,1){10}}
+        \NODE{50,30} \put(55,30){5} \put(50,30){\line(-1,1){10}}
+        \NODE{40,40} \put(30,40){4} \put(40,40){\line(1,1){10}}
+        \NODE{60,40} \put(65,40){7} \put(60,40){\line(-1,1){10}}
+        \NODE{50,50} \put(40,50){6} \put(50,50){\line(1,1){10}}
+        \NODE{60,60} \put(65,60){8} \put(60,60){\line(-1,1){10}}
+        \NODE{50,70} \put(40,70){1}
+        }
+
+    \end{picture}
+  \end{center}
+  
+  Let $|T(v)|$ denote the number of nodes in the subtree $T(v)$ rooted
+  at a node~$v$. Let $\mu(v)=\log |T(v)|$. To do an amortized analysis
+  of the operations we define the potential of a tree by the function
+  \[ \Phi(T) = \left\lceil \sum_{v\in T} \mu(v)\right\rceil\;. \]
+
+  \begin{itemize}
+  \item[a)] Show that each application of (\textit{ii}) and
+    (\textit{iii}) to a node $x$ implies a change in potential
+    $\Delta\Phi(T) \leq 3(\mu(x')-\mu(x))-1$, where $x'$ refers to
+    $x$ after applying the two rotations. Prove first that
+    $2\log(a+b)-\log a-\log b>1$, for all  $a,b>0$.
+  \item[b)] Show that each \textsf{splay} operation takes amortized time $O(\log n)$.
+  \item[c)] Show that each of the operations \textsf{Insert},
+    \textsf{Delete} and \textsf{Member} takes amortized time $O(\log
+    n)$.
+  \end{itemize}
+  
+\end{itemize}
+
+\end{document}

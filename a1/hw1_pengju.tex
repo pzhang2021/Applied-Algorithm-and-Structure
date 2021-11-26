@@ -1,0 +1,184 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Do not alter this block (unless you're familiar with LaTeX
+\documentclass{article}
+\usepackage[margin=1in]{geometry} 
+\usepackage{amsmath,amsthm,amssymb,amsfonts, fancyhdr, color, comment, graphicx, environ}
+\usepackage{xcolor}
+\usepackage{mdframed}
+\usepackage[shortlabels]{enumitem}
+\usepackage{indentfirst}
+\usepackage{hyperref}
+\usepackage{algorithm2e}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=blue,
+}
+
+
+\pagestyle{fancy}
+
+
+\newenvironment{problem}[2][Problem]
+    { \begin{mdframed}[backgroundcolor=gray!20] \textbf{#1 #2} \\}
+    {  \end{mdframed}}
+
+% Define solution environment
+\newenvironment{solution}
+    {\textit{Solution:}}
+    {}
+
+\renewcommand{\qed}{\quad\qedsymbol}
+
+% prevent line break in inline mode
+\binoppenalty=\maxdimen
+\relpenalty=\maxdimen
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%Fill in the appropriate information below
+\lhead{Pengju Zhang}
+\rhead{CSC-421} 
+\chead{\textbf{Assignment 1}}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+
+%problem 1
+\begin{problem}{1}
+\textbf{[10 pts]}
+Given a collection of $n$ nuts and a collection of $n$ bolts, arranged in an increasing order of size, give an $O(n)$ time algorithm to check if there is a nut and a bolt that have the same size. The sizes of the nuts and bolts are stored in the sorted arrays \textit{NUTS[1..n]} and \textit{BOLTS[1..n]}, respectively. Your algorithm can stop as soon as it finds a single match (i.e, you do not need to report all matches).
+\end{problem}
+\begin{solution}
+Since we have two sorted array, we want to keep track both of them with two iterators, \textit{i} for \textit{NUTS[1..n]} and \textit{j} for \textit{BOLTS[1..n]}.
+\begin{algorithm}
+\SetKwComment{Comment}{/* }{ */}
+	$i, j\gets 1$\;
+	\While{i $<$ n and j $<$ n} {
+		\uIf{NUTS[i] = BOLTS[j]} {return true\Comment*[l]{Once we find two identical number in both array we stop looping}} 
+		\uElseIf{NUTS[i] $>$ BOLTS[j]} {$j\gets j+1$\Comment*[l]{We want smaller number array increase their index and compare again with greater one}}
+		\Else{$i\gets i+1$\;}
+	}
+\end{algorithm} 
+\newline
+We go through index in both array only once, so the worse case is $O(2n) \approx O(n)$. \newline
+Noticed that if $\textit{NUTS[1..n]} \cap \textit{BOLTS[1..n]} = \emptyset$, then their range is not overlap and there is no reason to keep searching, thus we can add initial statement.
+\begin{algorithm}
+	$i, j\gets 1$\;
+	\While{i \textless n and j \textless n} {
+		\If{NUTS[n] $<$ BOLTS[1] or NUTS[1] $>$ BOLTS[n]} {return;}
+		\uIf{NUTS[i] == BOLTS[j]} {return true;}
+		\uElseIf{NUTS[i] $>$ BOLTS[j]} {$j\gets j+1$\;}
+		\Else{$i\gets i+1$\;}
+	}
+\end{algorithm}
+\end{solution}
+
+%problem 2
+\newpage
+\begin{problem}{2}
+\textbf{[15 pts]} Let $A[1..n]$ be an array of distinct positive integers, and let $t$ be a positive integer.
+	\begin{enumerate}
+		\item \textbf{[5 pts]} Assuming that $A$ is sorted, show that in $O(n)$ time it can be decided if $A$ 			contains two distinct elements $x$ and $y$ such that $x + y = t$.
+		\item \textbf{[10 pts]} Use part (a) to show that the following problem, referred to as the 3-Sum 				problem, can be solved in $O(n^{2})$ time:
+		\newline
+		(3-SUM) Given an array $A[1..n]$ of distinct positive integers that is not (necessarily) sorted, and a positive 		integer $t$, determine whether or not there are three distinct elements $x, y, z$ in A such that $x + y + z 		= t$.
+	\end{enumerate}
+\end{problem}
+\begin{solution}
+\newline
+\begin{enumerate}
+	\item One solution is to set two $x$ and $y$ be the minimum (A[1]) and maximum (A[n]) of array $A[1..n]$, and then assume that the value of t is sum of $x$ and $y$, if the sum is greater than t we decrease the index of the $y$, and similarly if the sum is less than t we increase the index of the $x$.
+	\begin{algorithm}
+		$i\gets 1$\, $j\gets n$\;
+		\While{i $<$ j} {
+			\uIf{A[i] + A[j] = t}{return true;}
+			\uElseIf{A[i] + A[j] $>$ t}{$j\gets j-1$\;}
+			\Else{$i\gets i+1$\;}
+		}
+	\end{algorithm}
+	\newline
+	The worst case is value of $i$ reach $j$ which takes $n-1$ times, thus time complexity is $O(n)$.
+	\item By adding extra variable $z$, meaning we want to go through part (a) process for all elements in $A[1..n]$ such that $x + y + z = t$ and $x\neq y \neq z$.
+	\begin{algorithm}
+		\For{$k\gets 1$ \KwTo $n$}{
+			$i\gets 1$\, $j\gets n$\;
+			\While{i $<$ j and i $\neq$ k and j $\neq$ k} {
+				\uIf{A[i] + A[j] + A[k] = t}{return true;}
+				\uElseIf{A[i] + A[j] + A[k]$>$ t}{$j\gets j-1$\;}
+				\Else{$i\gets i+1$\;}
+			}
+		}
+	\end{algorithm}
+	\newline
+	By adding a for loop for part (a), our time complexity is $O(n^2)$ in this case.
+\end{enumerate}
+\end{solution}
+
+%problem 3
+\newpage
+\begin{problem}{3}
+\textbf{[10 pts]} Let $A[1..n]$ be an array of positive integers ($A$ is not sorted). Pinocchio claims that there exists an $O(n)$-time algorithm that decides if there are two integers in $A$ whose sum is 1000. Is Pinocchio right, or will his nose grow? If you say Pinocchio is right, explain how it can be done in $O(n)$ time; otherwise, argue why it is impossible.
+\end{problem}
+\begin{solution}
+	Yes, by using hash table to search specific value, it only takes $O(n)$ time complexity.
+	Assume $A[1..n]$ store in hash table, then we could implement a two sum algorithm as following.
+	\begin{algorithm}
+		\For{$i\gets 1$ \KwTo $n$}{
+			$x\gets 1000 - A[i]$\;
+			\If {x exist in A[1..i]} {return true;}
+		}
+	\end{algorithm}
+	\newline
+	As mentioned before, we can use hash table search method (A.contains(x) in some languages) to find whether $x$ exist in array, thus it takes $O(n)$ time complexity.
+\end{solution}
+
+%problem 4
+\newpage
+\begin{problem}{4}
+\textbf{[10 pts]} Let $A[1..n]$ be an array of points in the plane, where A[i] contains the coordinates $(x_i, y_i)$ of a point $p_i$, for $i = 1,...,n$. Give an $O(n lg n)$ time algorithm that determines whether any two points in $A$ are identical (that is, have the same $x$ and $y$ coordinates).
+\end{problem}
+\begin{solution}
+	Assume by using heapsort (time complexity of $O(nlogn)$) to sort $A[1..2]$ as $A_{sorted}[1..n]$. Then we compare two adjacent points to find if there are two identical coordinates.
+	\begin{algorithm}
+		$i\gets 1$\;
+		\While{i $<$ n - 1} {
+			\uIf{$A_{sorted}[i].x = A_{sorted}[i + 1].x$ and $A_{sorted}[i].y = A_{sorted}[i + 1].y$} {
+				return true;
+			}
+			\Else{$i\gets i+1$\;}
+		}
+	\end{algorithm}	
+	\newline
+	The total time complexity of cost is $O(nlogn) + O(n) \approx O(nlogn)$.
+\end{solution}
+
+%problem 5
+\newpage
+\begin{problem}{5}
+\textbf{[15 pts]} Show how to determine in $O(n^2 lg n)$ time whether any three points in a set of $n$ points are collinear.
+\end{problem}
+\begin{solution}
+	Assume the initial value in $A[1..n]$ and we first want to compute slope of all possibilities.
+	\begin{algorithm}
+	\SetKwComment{Comment}{/* }{ */}
+		$A_{slope}$\Comment*[l]{Initialize an empty array $A_{slope}$ for storing slopes}
+		$i\gets 1$\;
+		\While{i $<$ n} {
+			$j\gets i + 1$\;
+			\While{j $<$ n} {
+				$slope\gets (A[i].y-A[j].y)/(A[i].x-A[j].x)$\;
+				$A_{slope}.add(slope)$\;
+				$j\gets j+1$\;
+			}
+		$i\gets i+1$\;
+		}
+	\end{algorithm}
+	\newline
+	Next step by using nested loop for checking two identical slope in $A_{slope}$, iff this happens, three points of set are collinear. Totally the time complexity is $O(n^2)+O(n^2)\approx O(n^2) < O(n^2 lg n)$.
+	
+	
+\end{solution}
+
+
+\end{document}
